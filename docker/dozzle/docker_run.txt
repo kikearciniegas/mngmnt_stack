@@ -1,0 +1,7 @@
+docker run --name dozzle -d \
+    -p 9910:8080 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --domainname=foo.com \
+    --label autoheal=true \
+    --restart=unless-stopped \    
+    amir20/dozzle

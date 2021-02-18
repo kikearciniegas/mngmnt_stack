@@ -1,0 +1,27 @@
+version: "3.7"
+
+# 1. run - docker-compose -p mngmnt up -d
+
+services:
+  heimdall:
+  # https://heimdall.site/
+  # https://github.com/linuxserver/Heimdall
+  # application dashboard
+  # - no health check available (if it fails, it just restarts by default)  
+    domainname: foo.com
+    image: linuxserver/heimdall
+    container_name: heimdall
+    network_mode: bridge
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TIME_ZONE
+      - UMASK=022 #optional
+    ports:
+      - 9930:80
+      - 9935:443
+    volumes:
+      - $PERSIST/heimdall/data:/config
+    labels:
+      - autoheal=$AH_RESTART
+    restart: unless-stopped

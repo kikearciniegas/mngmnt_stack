@@ -1,0 +1,12 @@
+docker run --name=heimdall -d \
+    -e PUID=1029 \
+    -e PGID=100 \
+    -e TZ=<enter your value> \
+    -e UMASK=022 \
+    -p 9930:80 \
+    -p 9935:443 \
+    -v /volume1/docker/heimdall/data:/config \
+    --domainname=foo.com \
+    --label autoheal=true \
+    --restart unless-stopped \
+    linuxserver/heimdall

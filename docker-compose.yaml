@@ -1,0 +1,161 @@
+# mngmnt docker stack
+# --------------------
+#
+# -         - autoheal                    monitor and restart unhealthy docker containers
+# 9910      - dozzle                      live monitoring of container logs
+# 9920      - healthchecks                cron job monitoring service
+# 9930,9935 - heimdall                    application dashboard
+# 9900,9905 - portainer                   docker and swarm management UI
+# -         - watchtower                  docker base image updater
+# -----------------------------------------------------------------------------------------------------------------
+#
+
+version: "3.7"
+
+# 1. run - docker-compose -p mngmnt up -d
+
+services:
+  autoheal:
+  # https://github.com/willfarrell/docker-autoheal
+  # monitor and restart unhealthy docker containers
+  # - no health check available (if it fails, it just restarts by default)  
+    domainname: foo.com
+    image: willfarrell/autoheal
+    container_name: autoheal
+    network_mode: bridge    
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=$AH_CONTAINER_LABEL
+    volumes:
+      - $DOCKER_SOCK:/var/run/docker.sock
+      - $LOCAL_MACHINE_TIMEZONE:/etc/localtime:ro
+    labels: 
+      - autoheal=$AH_RESTART    
+    restart: always
+
+  dozzle:
+  # https://dozzle.dev/
+  # https://github.com/amir20/dozzle
+  # live monitoring of container logs
+  # - no health check available (if it fails, it just restarts by default)    
+    domainname: foo.com
+    image: amir20/dozzle
+    container_name: dozzle
+    network_mode: bridge     
+    ports:
+      - 9910:8080
+    volumes:
+      - $DOCKER_SOCK:/var/run/docker.sock
+    labels: 
+      - autoheal=$AH_RESTART     
+    restart: unless-stopped
+
+  healthchecks:
+  # https://healthchecks.io
+  # https://github.com/healthchecks/healthchecks
+  # cron job monitoring service
+  # - no health check available (if it fails, it just restarts by default)  
+    domainname: foo.com
+    image: linuxserver/healthchecks
+    container_name: healthchecks
+    network_mode: bridge
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - UMASK=022 #optional
+      - SITE_ROOT=$HC_SITE_ROOT
+      - SITE_NAME=$HC_SITE_NAME
+      - SECRET_KEY=$HC_SECRET_KEY__SECRET
+      - SIGNAL_CLI_ENABLED=$HC_SIGNAL_CLI_ENABLED
+      - ALLOWED_HOSTS=$HC_ALLOWED_HOSTS
+      - SUPERUSER_EMAIL=$HC_SU_EMAIL__SECRET
+      - SUPERUSER_PASSWORD=$HC_SU_PWD__SECRET
+      - REGISTRATION_OPEN=$HC_REG_OPEN
+      - REGENERATE_SETTINGS=$HC_REGEN_SETTINGS
+      - DEBUG=$HC_DEBUG
+      - DEFAULT_FROM_EMAIL=$HC_DEFAULT_FROM_EMAIL__SECRET
+      - EMAIL_USE_TLS=$HC_EMAIL_USE_TLS           
+      - EMAIL_HOST=$GM_HOST
+      - EMAIL_PORT=$GM_HOST_PORT
+      - EMAIL_HOST_USER=$GM_HOST_USER__SECRET
+      - EMAIL_HOST_PASSWORD=$GM_HOST_PWD__SECRET      
+    ports:
+      - 9920:8000
+    volumes:
+      - $PERSIST/healthchecks/data:/config
+    labels: 
+      - autoheal=$AH_RESTART     
+    restart: unless-stopped
+  
+  heimdall:
+  # https://heimdall.site/
+  # https://github.com/linuxserver/Heimdall
+  # application dashboard
+  # - no health check available (if it fails, it just restarts by default)  
+    domainname: foo.com
+    image: linuxserver/heimdall
+    container_name: heimdall
+    network_mode: bridge
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - TZ=$TIME_ZONE
+      - UMASK=022 #optional
+    ports:
+      - 9930:80
+      - 9935:443
+    volumes:
+      - $PERSIST/heimdall/data:/config
+    labels:
+      - autoheal=$AH_RESTART
+    restart: unless-stopped
+
+  portainer:
+  # https://www.portainer.io/
+  # https://github.com/portainer/portainer
+  # docker and swarm management UI
+  # - no health check available (if it fails, it just restarts by default)
+    domainname: foo.com
+    image: portainer/portainer-ce
+    container_name: portainer
+    network_mode: bridge
+    ports:
+      - 9900:8000
+      - 9905:9000
+    volumes:
+      - $PERSIST/portainer/data:/data      
+      - $DOCKER_SOCK:/var/run/docker.sock
+    labels: 
+      - autoheal=$AH_RESTART    
+    restart: always
+
+  watchtower:
+  # https://containrrr.dev/watchtower/
+  # docker base image updater
+  # - no health check available (if it fails, it just restarts by default)
+    domainname: foo.com
+    image: containrrr/watchtower
+    network_mode: bridge    
+    container_name: watchtower
+    environment:
+      - TZ=$TIME_ZONE
+      - WATCHTOWER_SCHEDULE=$WT_SCHEDULE
+      - WATCHTOWER_REMOVE_VOLUMES=$WT_RM_VOLS
+      - WATCHTOWER_CLEANUP=$WT_CLEANUP
+      - WATCHTOWER_INCLUDE_STOPPED=$WT_INC_STOPPED
+      - WATCHTOWER_TIMEOUT=$WT_TIMEOUT
+      - WATCHTOWER_ROLLING_RESTART=$WT_ROLLING_RESTART
+      - WATCHTOWER_DEBUG=$WT_DEBUG
+      - WATCHTOWER_NOTIFICATIONS_LEVEL=$WT_NOTI_LEVEL
+      - WATCHTOWER_NOTIFICATIONS=$WT_NOTI_TYPE
+      - WATCHTOWER_NOTIFICATION_EMAIL_DELAY=$WT_NOTI_EMAIL_DELAY
+      - WATCHTOWER_NOTIFICATION_EMAIL_TO=$WT_EMAIL_TO__SECRET
+      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=$GM_HOST_USER__SECRET
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=$GM_HOST
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=$GM_HOST_PORT
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=$GM_HOST_USER__SECRET
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=$GM_HOST_PWD__SECRET
+    volumes:
+      - $DOCKER_SOCK:/var/run/docker.sock 
+    labels: 
+      - autoheal=$AH_RESTART   
+    restart: unless-stopped

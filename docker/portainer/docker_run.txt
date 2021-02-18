@@ -1,0 +1,9 @@
+docker run --name=portainer -d \
+    -p 9900:8000 \
+    -p 9905:9000 \
+    -v /volume1/docker/portainer/data:/data \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --domainname=foo.com \
+    --label autoheal=true \
+    --restart=always \
+    portainer/portainer-ce

@@ -1,0 +1,8 @@
+docker run --name autoheal -d \
+    -e AUTOHEAL_CONTAINER_LABEL=all \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /etc/localtime:/etc/localtime:ro \
+    --domainname=foo.com \
+    --label autoheal=true \
+    --restart=always \    
+    willfarrell/autoheal

@@ -1,0 +1,21 @@
+version: "3.7"
+
+# 1. run - docker-compose -p mngmnt up -d
+
+services:
+  autoheal:
+  # https://github.com/willfarrell/docker-autoheal
+  # monitor and restart unhealthy docker containers
+  # - no health check available (if it fails, it just restarts by default)  
+    domainname: foo.com
+    image: willfarrell/autoheal
+    container_name: autoheal
+    network_mode: bridge    
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=$AH_CONTAINER_LABEL
+    volumes:
+      - $DOCKER_SOCK:/var/run/docker.sock
+      - $LOCAL_MACHINE_TIMEZONE:/etc/localtime:ro
+    labels: 
+      - autoheal=$AH_RESTART    
+    restart: always

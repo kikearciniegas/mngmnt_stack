@@ -1,0 +1,41 @@
+version: "3.7"
+
+# 1. run - docker-compose -p mngmnt up -d
+
+services:
+  healthchecks:
+  # https://healthchecks.io
+  # https://github.com/healthchecks/healthchecks
+  # cron job monitoring service
+  # - no health check available (if it fails, it just restarts by default)  
+    domainname: foo.com
+    image: linuxserver/healthchecks
+    container_name: healthchecks
+    network_mode: bridge
+    environment:
+      - PUID=$PUID
+      - PGID=$PGID
+      - UMASK=022 #optional
+      - SITE_ROOT=$HC_SITE_ROOT
+      - SITE_NAME=$HC_SITE_NAME
+      - SECRET_KEY=$HC_SECRET_KEY__SECRET
+      - SIGNAL_CLI_ENABLED=$HC_SIGNAL_CLI_ENABLED
+      - ALLOWED_HOSTS=$HC_ALLOWED_HOSTS
+      - SUPERUSER_EMAIL=$HC_SU_EMAIL__SECRET
+      - SUPERUSER_PASSWORD=$HC_SU_PWD__SECRET
+      - REGISTRATION_OPEN=$HC_REG_OPEN
+      - REGENERATE_SETTINGS=$HC_REGEN_SETTINGS
+      - DEBUG=$HC_DEBUG
+      - DEFAULT_FROM_EMAIL=$HC_DEFAULT_FROM_EMAIL__SECRET
+      - EMAIL_USE_TLS=$HC_EMAIL_USE_TLS           
+      - EMAIL_HOST=$GM_HOST
+      - EMAIL_PORT=$GM_HOST_PORT
+      - EMAIL_HOST_USER=$GM_HOST_USER__SECRET
+      - EMAIL_HOST_PASSWORD=$GM_HOST_PWD__SECRET      
+    ports:
+      - 9920:8000
+    volumes:
+      - $PERSIST/healthchecks/data:/config
+    labels: 
+      - autoheal=$AH_RESTART     
+    restart: unless-stopped

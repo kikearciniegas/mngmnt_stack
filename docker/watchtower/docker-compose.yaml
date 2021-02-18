@@ -1,0 +1,36 @@
+version: "3.7"
+
+# 1. run - docker-compose -p mngmnt up -d
+
+services:
+  watchtower:
+  # https://containrrr.dev/watchtower/
+  # docker base image updater
+  # - no health check available (if it fails, it just restarts by default)
+    domainname: foo.com
+    image: containrrr/watchtower
+    network_mode: bridge    
+    container_name: watchtower
+    environment:
+      - TZ=$TIME_ZONE
+      - WATCHTOWER_SCHEDULE=$WT_SCHEDULE
+      - WATCHTOWER_REMOVE_VOLUMES=$WT_RM_VOLS
+      - WATCHTOWER_CLEANUP=$WT_CLEANUP
+      - WATCHTOWER_INCLUDE_STOPPED=$WT_INC_STOPPED
+      - WATCHTOWER_TIMEOUT=$WT_TIMEOUT
+      - WATCHTOWER_ROLLING_RESTART=$WT_ROLLING_RESTART
+      - WATCHTOWER_DEBUG=$WT_DEBUG
+      - WATCHTOWER_NOTIFICATIONS_LEVEL=$WT_NOTI_LEVEL
+      - WATCHTOWER_NOTIFICATIONS=$WT_NOTI_TYPE
+      - WATCHTOWER_NOTIFICATION_EMAIL_DELAY=$WT_NOTI_EMAIL_DELAY
+      - WATCHTOWER_NOTIFICATION_EMAIL_TO=$WT_EMAIL_TO__SECRET
+      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=$GM_HOST_USER__SECRET
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=$GM_HOST
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=$GM_HOST_PORT
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=$GM_HOST_USER__SECRET
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=$GM_HOST_PWD__SECRET
+    volumes:
+      - $DOCKER_SOCK:/var/run/docker.sock 
+    labels: 
+      - autoheal=$AH_RESTART   
+    restart: unless-stopped

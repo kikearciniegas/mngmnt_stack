@@ -1,0 +1,21 @@
+version: "3.7"
+
+# 1. run - docker-compose -p mngmnt up -d
+
+services:
+  dozzle:
+  # https://dozzle.dev/
+  # https://github.com/amir20/dozzle
+  # live monitoring of container logs
+  # - no health check available (if it fails, it just restarts by default)    
+    domainname: foo.com
+    image: amir20/dozzle
+    container_name: dozzle
+    network_mode: bridge     
+    ports:
+      - 9910:8080
+    volumes:
+      - $DOCKER_SOCK:/var/run/docker.sock
+    labels: 
+      - autoheal=$AH_RESTART     
+    restart: unless-stopped

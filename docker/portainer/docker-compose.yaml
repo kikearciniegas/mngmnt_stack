@@ -1,0 +1,23 @@
+version: "3.7"
+
+# 1. run - docker-compose -p mngmnt up -d
+
+services:
+  portainer:
+  # https://www.portainer.io/
+  # https://github.com/portainer/portainer
+  # docker and swarm management UI
+  # - no health check available (if it fails, it just restarts by default)
+    domainname: foo.com 
+    image: portainer/portainer-ce
+    container_name: portainer
+    network_mode: bridge
+    ports:
+      - 9900:8000
+      - 9905:9000
+    volumes:
+      - $PERSIST/portainer/data:/data      
+      - $DOCKER_SOCK:/var/run/docker.sock
+    labels: 
+      - autoheal=$AH_RESTART    
+    restart: always

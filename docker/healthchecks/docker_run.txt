@@ -1,0 +1,26 @@
+docker run --name=healthchecks -d \
+    -e PUID=1029 \
+    -e PGID=100 \
+    -e UMASK=022 \
+    -e SITE_ROOT=<enter your value> \
+    -e SITE_NAME=healthchecks \
+    -e SECRET_KEY=<enter your value> \
+    -e SIGNAL_CLI_ENABLED=True \
+    -e ALLOWED_HOSTS=* \
+    -e SUPERUSER_EMAIL=<enter your value> \
+    -e SUPERUSER_PASSWORD=<enter your value> \
+    -e REGISTRATION_OPEN=False \
+    -e REGENERATE_SETTINGS=True \
+    -e DEBUG=False \
+    -e DEFAULT_FROM_EMAIL=<enter your value> \
+    -e EMAIL_USE_TLS=True \
+    -e EMAIL_HOST=<enter your value> \
+    -e EMAIL_PORT=<enter your value> \
+    -e EMAIL_HOST_USER=<enter your value> \
+    -e EMAIL_HOST_PASSWORD=<enter your value> \
+    -p 9920:8000 \
+    -v /volume1/docker/healthchecks/data:/config \
+    --domainname=foo.com \
+    --label autoheal=true \
+    --restart unless-stopped \
+    linuxserver/healthchecks

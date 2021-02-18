@@ -1,0 +1,23 @@
+docker run --name=watchtower -d \
+    -e TZ=<enter your value> \
+    -e WATCHTOWER_SCHEDULE="0 0 4 * * *" \
+    -e WATCHTOWER_REMOVE_VOLUMES=true \
+    -e WATCHTOWER_CLEANUP=true \
+    -e WATCHTOWER_INCLUDE_STOPPED=true \
+    -e WATCHTOWER_TIMEOUT=15 \
+    -e WATCHTOWER_ROLLING_RESTART=true \
+    -e WATCHTOWER_DEBUG=false \
+    -e WATCHTOWER_NOTIFICATIONS_LEVEL=info \
+    -e WATCHTOWER_NOTIFICATIONS=email \
+    -e WATCHTOWER_NOTIFICATION_EMAIL_DELAY=2 \
+    -e WATCHTOWER_NOTIFICATION_EMAIL_TO=<enter your value> \
+    -e WATCHTOWER_NOTIFICATION_EMAIL_FROM=<enter your value> \
+    -e WATCHTOWER_NOTIFICATION_EMAIL_SERVER=<enter your value> \
+    -e WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT=<enter your value> \
+    -e WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=<enter your value> \
+    -e WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=<enter your value> \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --domainname=foo.com \
+    --label autoheal=true \
+    --restart=unless-stopped \
+    containrrr/watchtower
